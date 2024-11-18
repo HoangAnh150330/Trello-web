@@ -31,10 +31,9 @@ function Profiles() {
           aria-expanded={open ? 'true' : undefined}
         >
           <Avatar
-            sx={{ width: 32, height: 32 }}
+            sx={{ width: 34, height: 34 }}
             alt="Hoang anh"
-            src="https://png.pngtree.com/png-clipart/20230817/original/
-            pngtree-round-kid-avatar-boy-face-picture-image_8005285.png"
+            src="https://png.pngtree.com/png-clipart/20230817/original/pngtree-round-kid-avatar-boy-face-picture-image_8005285.png"
           />
         </IconButton>
       </Tooltip>
