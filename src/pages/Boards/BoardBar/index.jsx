@@ -21,7 +21,8 @@ const MENU_STYLES={
   },
   '&:hover':{
     bgcolor:'primary.50'
-  }
+  },
+  '&::webkit-scrollbar-track':{ m: 2 }
 }
 function BoardBar() {
   return (
@@ -83,7 +84,10 @@ function BoardBar() {
               width:34,
               height:34,
               fontSize:16,
-              border:'none'
+              border:'none',
+              color:'white',
+              cursor:'pointer',
+              '&:first-of-type':{ bgcolor:'#a4b0be' }
             }
           }}
           max={7}>
