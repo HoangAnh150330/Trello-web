@@ -10,6 +10,8 @@ import Tooltip from '@mui/material/Tooltip'
 import AvatarGroup from '@mui/material/AvatarGroup'
 import Button from '@mui/material/Button'
 import PersonAddIcon from '@mui/icons-material/PersonAdd'
+import { capitalizeFirstLetter } from '~/utils/formatters'
+
 const MENU_STYLES={
   color:'white',
   bgcolor:'transparent',
@@ -24,7 +26,7 @@ const MENU_STYLES={
   },
   '&::webkit-scrollbar-track':{ m: 2 }
 }
-function BoardBar() {
+function BoardBar({ board }) {
   return (
     <Box sx={{
       width:'100%',
@@ -40,12 +42,12 @@ function BoardBar() {
       <Box sx={{ display:'flex', alignItems:'center', gap:2 }}>
         <Chip
           sx={MENU_STYLES}
-          icon={<DashboardIcon />} label="HoangAnh MERN Stack Board"
+          icon={<DashboardIcon />} label={ board?.title }
           clickable
         />
         <Chip
           sx={MENU_STYLES }
-          icon={<VpnLockIcon />} label="Public/Private WorkSpace"
+          icon={<VpnLockIcon />} label={ capitalizeFirstLetter(board?.type) }
           clickable
         />
         <Chip
