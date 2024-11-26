@@ -9,7 +9,7 @@ import AttachmentIcon from '@mui/icons-material/Attachment'
 import Typography from '@mui/material/Typography'
 
 function Card({ card }) {
-  const shouldShowCardActions = () =>{
+  const shouldShowCardActions = () => {
     return !!card?.memberIds?.length || !!card?.comments?.length || !!card?.attachments?.length
   }
   return (
@@ -25,7 +25,7 @@ function Card({ card }) {
       <CardContent sx={{ p:1.5, '&:last-child':{ p:1.5 } }}>
         <Typography>{card?.title}</Typography>
       </CardContent>
-      {shouldShowCardActions() && 
+      {shouldShowCardActions() &&
         <CardActions sx={{ p: '0 4px 8px 4px' }}>
           {!!card?.memberIds?.length &&
             <Button size="small" startIcon={<GroupIcon/>}>{card?.memberIds?.length}</Button>
