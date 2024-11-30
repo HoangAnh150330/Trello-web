@@ -9,7 +9,8 @@ import {
   useSensor,
   useSensors,
   DragOverlay,
-  defaultDropAnimationSideEffects
+  defaultDropAnimationSideEffects,
+  closestCorners
 } from '@dnd-kit/core'
 import { arrayMove } from '@dnd-kit/sortable'
 import { useEffect, useState } from 'react'
@@ -159,7 +160,11 @@ function BoardContent({ board }) {
   }
   return (
     <DndContext
+      // cảm biến
       sensors={sensors}
+      //Thuật toán phát hiện va chạm (nếu không có thì card với cover lớn sẽ không kéo qua column được vì lúc này
+      //nó đang bị conflict giữa card và column ) , chúng ta sẽ dùng closestCorners thay vì closestCenter
+      collisionDetection={closestCorners}
       onDragStart={handleDragStart}
       onDragOver={handleDragOver}
       onDragEnd={handleDragEnd} >
