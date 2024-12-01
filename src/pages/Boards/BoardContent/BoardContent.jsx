@@ -18,7 +18,8 @@ import {
 } from '@dnd-kit/core'
 import { arrayMove } from '@dnd-kit/sortable'
 import { useEffect, useState, useCallback, useRef } from 'react'
-import { cloneDeep } from 'lodash'
+import { cloneDeep, isEmpty } from 'lodash'
+import { generatePlaceholderCard } from '~/utils/formatters'
 import Column from './ListColumns/Column/Column'
 import Card from './ListColumns/Column/ListCards/Card/Card'
 const ACTIVE_DRAG_ITEM_TYPE ={
@@ -109,6 +110,13 @@ function BoardContent({ board }) {
         if (nextActiveColumn) {
           // xoa card ở cái column active từ column cũ sang mới
           nextActiveColumn.cards =nextActiveColumn.cards.filter( card => card._id !== activeDraggingCardId)
+
+          //Thêm Placeholder Card nêu Column rỗng : Bị kéo hêt card đi , kh còn cái nào nữa
+          if (isEmpty(nextActiveColumn.cards)) {
+            console.log('Card cuối cùng bị kéo đi ')
+            nextActiveColumn.cards = [generatePlaceholderCard(nextActiveColumn)]
+          }
+
           //Cập nhật lại mảng CardOrderIds cho chuẩn dữ liệu
           nextActiveColumn.cardOrderIds = nextActiveColumn.cards.map(card => card._id)
         }
@@ -119,6 +127,10 @@ function BoardContent({ board }) {
 
           //Tiếp theo là thêm cái card đang kéo vào column theo vị trí index mới
           nextOverColumn.cards =nextOverColumn.cards.toSpliced(newCardIndex, 0, activeDraggingCardData)
+
+          //Xóa cái Placeholder Card đi nếu no đang tồn tại
+          nextOverColumn.cards = nextOverColumn.cards.filter (card => !card.FE_PlaceholderCard)
+
 
           //Cập nhật lại mảng CardOrderIds cho chuẩn dữ liệu
           nextOverColumn.cardOrderIds = nextOverColumn.cards.map(card => card._id)
