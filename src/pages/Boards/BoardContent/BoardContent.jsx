@@ -113,7 +113,7 @@ function BoardContent({ board }) {
 
           //Thêm Placeholder Card nêu Column rỗng : Bị kéo hêt card đi , kh còn cái nào nữa
           if (isEmpty(nextActiveColumn.cards)) {
-            console.log('Card cuối cùng bị kéo đi ')
+            // console.log('Card cuối cùng bị kéo đi ')
             nextActiveColumn.cards = [generatePlaceholderCard(nextActiveColumn)]
           }
 
@@ -268,9 +268,9 @@ function BoardContent({ board }) {
       return [{ id : overId }]
     }
 
-    //Nếu overId là null thì trả về mảng rỗng - tránh crash trang 
+    //Nếu overId là null thì trả về mảng rỗng - tránh crash trang
     return lastOverId.current ? [{ id:lastOverId.current }] :[]
-  }, [ activeDragItemType ] )
+  }, [activeDragItemType] )
   return (
     <DndContext
       // cảm biến
