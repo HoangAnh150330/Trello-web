@@ -2,9 +2,9 @@ import Container from '@mui/material/Container'
 import AppBar from '~/components/AppBar/AppBar'
 import BoardBar from './BoardBar/BoardBar'
 import BoardContent from './BoardContent/BoardContent'
-import { mockData } from '~/apis/mock-data'
+// import { mockData } from '~/apis/mock-data'
 import { useEffect, useState } from 'react'
-import { fetchBoardDetailsAPI, createNewColumnAPI, createNewCardAPI } from '~/apis'
+import { fetchBoardDetailsAPI, createNewColumnAPI, createNewCardAPI, updateBoardDetailsAPI } from '~/apis'
 import { generatePlaceholderCard } from '~/utils/formatters'
 import { isEmpty } from 'lodash'
 function Board() {
@@ -21,7 +21,7 @@ function Board() {
           column.cardOrderIds = [generatePlaceholderCard(column)._id]
         }
       })
-      console.log(board)
+      // console.log(board)
       setBoard(board)
     })
   }, [])
@@ -60,6 +60,18 @@ function Board() {
     }
     setBoard(newBoard)
   }
+  //Func có nv gọi API và xử lý khi đã kéo thả Column
+  const moveColumns = async (dndOrderedColumns) => {
+    //Update lại chop chuẩn dữ liệu state board
+    const dndOrderColumnsIds = dndOrderedColumns.map(c => c._id)
+
+    const newBoard = { ...board }
+    newBoard.columns =dndOrderedColumns
+    newBoard.columnOrderIds = dndOrderColumnsIds
+    setBoard(newBoard)
+    //Gọi API Update board
+    await updateBoardDetailsAPI(newBoard._id, { columnOrderIds : dndOrderColumnsIds })
+  }
   return (
     <Container disableGutters maxWidth={false} sx={{ height : '100vh', backgroundColor:'primary.main' }}>
       <AppBar/>
@@ -67,7 +79,8 @@ function Board() {
       <BoardContent
         board={board}
         createNewColumn={createNewColumn}
-        createNewCard={createNewCard}/>
+        createNewCard={createNewCard}
+        moveColumns={moveColumns}/>
     </Container>
   )
 }
