@@ -27,7 +27,7 @@ const ACTIVE_DRAG_ITEM_TYPE ={
   COLUMN:'ACTIVE_DRAG_ITEM_TYPE_COLUMN',
   CARD:'ACTIVE_DRAG_ITEM_TYPE_CARD'
 }
-function BoardContent({ board }) {
+function BoardContent({ board, createNewColumn, createNewCard }) {
   //Nếu dùng Pointer Sensor mặc định thì phải kết hợp 1 thuộc tính là CSS touch-action:none ở những phần tử kéo thả  nhưng còn BUG
   //const pointerSensor =useSensor(PointerSensor, { activationConstraint:{ distance:10 } })
   //Yêu cầu chuột di chuyển 10px thì mới kích hoạt event , fix trường hợp click bị gọi event
@@ -49,10 +49,11 @@ function BoardContent({ board }) {
   useEffect(() => {
     setOrderedColumns( mapOrder(board?.columns, board?.columnOrderIds, '_id'))
   }, [board])
+  // console.log(mapOrder(board?.columns, board?.columnOrderIds, '_id'))
   //Tìm columns theo cardId
   const findColumnByCardId = (cardId) => {
     //Đoạn này nên dùng , c.cards thay vì c.cardOderIds bởi vì ở bước handleDragOver chúng t sẽ làm dữ liệu cho cards
-    //hoàn chỉnh trước rồi moiwss tạo ra cardOrderIds mới
+    //hoàn chỉnh trước rồi moi tạo ra cardOrderIds mới
     return orderedColumns.find(column => column?.cards?.map(card => card._id)?.includes(cardId))
   }
   //Trigger khi bắt đầu kéo 1 phần tử
@@ -292,7 +293,11 @@ function BoardContent({ board }) {
         height:(theme) => theme.trello.boardContentHeight,
         p: '10px 0'
       }}>
-        <ListColumns columns={orderedColumns}/>
+        <ListColumns
+          columns={orderedColumns}
+          createNewColumn={createNewColumn}
+          createNewCard={createNewCard}
+        />
         <DragOverlay dropAnimation={customDropAnimation}>
           {(!activeDragItemType ) && null}
           {( activeDragItemType === ACTIVE_DRAG_ITEM_TYPE.COLUMN) && <Column column={activeDragItemData}/>}

@@ -15,6 +15,7 @@ function Card({ card }) {
     id: card._id,
     data:{ ...card }
   })
+  // console.log(card._id)
   const dndKitCardStyles = {
     touchAction:'none',
     //TouchAction :'none',//Dành cho senor default dạng PointerSenor

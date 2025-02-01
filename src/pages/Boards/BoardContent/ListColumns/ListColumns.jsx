@@ -8,18 +8,26 @@ import TextField from '@mui/material/TextField'
 import CloseIcon from '@mui/icons-material/Close'
 import { toast } from 'react-toastify'
 
-function ListColumns({ columns }) {
+function ListColumns({ columns, createNewColumn, createNewCard }) {
   const [openNewColumnForm, setOpenNewColumnForm] =useState(false)
   const toggleOpenNewColumnForm =() => setOpenNewColumnForm(!openNewColumnForm)
 
   const [newColumnTitle, setNewColumnTitle]=useState('')
-  const addNewColumn = () => {
+  const addNewColumn = async () => {
     if (!newColumnTitle) {
       toast.error('Please enter Column Title')
       return
     }
-    console.log(newColumnTitle)
+    //Tạo dữ liệu Column để gọi API
+    const newColumnData ={
+      title: newColumnTitle
+    }
+    /*
+    -Gọi lên props function createNewColumn nằm ở component cha cao nhất
+    */
+
     //Gọi API ở đây ...
+    await createNewColumn(newColumnData)
 
     //Đóng lại trạng thái thêm Column mới & Clear Input
     toggleOpenNewColumnForm()
@@ -39,7 +47,7 @@ function ListColumns({ columns }) {
         overflowY:'hidden',
         '&::webkit-scrollbar-track':{ m: 2 }
       }}>
-        {columns?.map( column => <Column key={column._id} column={column}/>)}
+        {columns?.map( column => <Column key={column._id} column={column} createNewCard={createNewCard} />)}
         {/* Box Add New column  */}
         {!openNewColumnForm
           ? <Box onClick={toggleOpenNewColumnForm} sx={{
@@ -83,7 +91,7 @@ function ListColumns({ columns }) {
               variant="outlined"
               autoFocus
               value={newColumnTitle}
-              onChange={(e)=> setNewColumnTitle(e.target.value)}
+              onChange={(e) => setNewColumnTitle(e.target.value)}
               sx={{
                 '& label':{ color:'white' },
                 '& input':{ color:'white' },
