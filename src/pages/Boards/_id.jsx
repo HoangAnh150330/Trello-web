@@ -2,11 +2,21 @@ import Container from '@mui/material/Container'
 import AppBar from '~/components/AppBar/AppBar'
 import BoardBar from './BoardBar/BoardBar'
 import BoardContent from './BoardContent/BoardContent'
+import Box from '@mui/material/Box'
+import CircularProgress from '@mui/material/CircularProgress'
+import Typography from '@mui/material/Typography'
 // import { mockData } from '~/apis/mock-data'
 import { useEffect, useState } from 'react'
-import { fetchBoardDetailsAPI, createNewColumnAPI, createNewCardAPI, updateBoardDetailsAPI } from '~/apis'
+import {
+  fetchBoardDetailsAPI,
+  createNewColumnAPI,
+  createNewCardAPI,
+  updateBoardDetailsAPI,
+  updateColumnDetailsAPI
+} from '~/apis'
 import { generatePlaceholderCard } from '~/utils/formatters'
 import { isEmpty } from 'lodash'
+import { mapOrder } from '~/utils/sorts'
 function Board() {
   const [board, setBoard] = useState(null)
 
@@ -14,14 +24,19 @@ function Board() {
     const boardId = '6791979d46e868f6b4af88ab'
     //call API
     fetchBoardDetailsAPI(boardId).then(board => {
+      //Sắp xếp thứ tự các column luôn ở đây trước khi đưa dữ liệu xuống bên dưới các component con
+      board.column = mapOrder(board.columns, board?.columnOrderIds, '_id')
       //Khi tạo column mới thì nó sẽ chưa có card , cần xử lý vấn đề kéo thả một column rỗng
       board.columns.forEach(column => {
         if (isEmpty(column.cards)) {
           column.cards = [generatePlaceholderCard(column)]
           column.cardOrderIds = [generatePlaceholderCard(column)._id]
         }
+        else {
+          // Sắp xếp thứ tự các cards luôn ở đây trước khi đưa dữ liệu xuống bên dưới component
+          column.cards =mapOrder(column.cards, column.cardOrderIds, '_id')
+        }
       })
-      // console.log(board)
       setBoard(board)
     })
   }, [])
@@ -61,7 +76,10 @@ function Board() {
     setBoard(newBoard)
   }
   //Func có nv gọi API và xử lý khi đã kéo thả Column
-  const moveColumns = async (dndOrderedColumns) => {
+  /* Func có nv gọi API và xử lý khi đã kéo thả Column
+  Chỉ cần gọi API để cập nhật mảng columnOrderIds của Board chứa nó (thay đổi vị trí trong mảng)
+  */
+  const moveColumns = (dndOrderedColumns) => {
     //Update lại chop chuẩn dữ liệu state board
     const dndOrderColumnsIds = dndOrderedColumns.map(c => c._id)
 
@@ -70,7 +88,31 @@ function Board() {
     newBoard.columnOrderIds = dndOrderColumnsIds
     setBoard(newBoard)
     //Gọi API Update board
-    await updateBoardDetailsAPI(newBoard._id, { columnOrderIds : dndOrderColumnsIds })
+    updateBoardDetailsAPI(newBoard._id, { columnOrderIds : dndOrderColumnsIds })
+  }
+
+  /* Khi di chuyển card trong cùng 1 column :
+  Chỉ cần gọi API để cập nhật mảng cardOrderIds của Column chứa nó (thay đổi vị trí trong mảng)
+  */
+  const moveCardInTheSameColumn = (dndOrderedCards, dndOrderedCardIds, columnId) => {
+    //Update lại chop chuẩn dữ liệu state board
+    const newBoard = { ...board }
+    const columnToUpdate = newBoard.columns.find(column => column._id === columnId)
+    if (columnToUpdate) {
+      columnToUpdate.cards = dndOrderedCards
+      columnToUpdate.cardOrderIds= dndOrderedCardIds
+    }
+    setBoard(newBoard)
+    //Gọi API Update Column
+    updateColumnDetailsAPI(columnId, { cardOrderIds: dndOrderedCardIds })
+  }
+  if (!board) {
+    return (
+      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent:'center', gap:2, width:'100vw', height:'100vh' }}>
+        <CircularProgress />
+        <Typography>Loading Board...</Typography>
+      </Box>
+    )
   }
   return (
     <Container disableGutters maxWidth={false} sx={{ height : '100vh', backgroundColor:'primary.main' }}>
@@ -80,7 +122,8 @@ function Board() {
         board={board}
         createNewColumn={createNewColumn}
         createNewCard={createNewCard}
-        moveColumns={moveColumns}/>
+        moveColumns={moveColumns}
+        moveCardInTheSameColumn ={moveCardInTheSameColumn}/>
     </Container>
   )
 }
