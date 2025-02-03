@@ -12,7 +12,8 @@ import {
   createNewColumnAPI,
   createNewCardAPI,
   updateBoardDetailsAPI,
-  updateColumnDetailsAPI
+  updateColumnDetailsAPI,
+  moveCardToDifferentColumnAPI
 } from '~/apis'
 import { generatePlaceholderCard } from '~/utils/formatters'
 import { isEmpty } from 'lodash'
@@ -114,6 +115,29 @@ function Board() {
       </Box>
     )
   }
+
+  // Khi di chuyển card sang Column khác:
+  // B1: Cập nhật mảng cardOrderIds của Column ban đầu chứa nó (Hiểu bản chất là xóa cái _id của Card ra khỏi mảng)
+  // B2: Cập nhật mảng cardOrderIds của Column tiếp theo (Hiểu bản chất là thêm _id của Card vào mảng)
+  // B3: Cập nhật lại trường columnId mới của cái Card đã kéo
+  // => Làm một API support riêng.
+  const moveCardToDifferentColumn = (currentCardId, prevColumnId, nextColumnId, dndOrderedColumns) => {
+    //Update lại chop chuẩn dữ liệu state board
+    const dndOrderColumnsIds = dndOrderedColumns.map(c => c._id)
+    const newBoard = { ...board }
+    newBoard.columns =dndOrderedColumns
+    newBoard.columnOrderIds = dndOrderColumnsIds
+    setBoard(newBoard)
+
+    //Gọi API xử lý phía BE
+    moveCardToDifferentColumnAPI({
+      currentCardId,
+      prevColumnId,
+      prevCardOrderIds: dndOrderedColumns.find(c => c._id === prevColumnId)?.cardOrderIds,
+      nextColumnId,
+      nextCardOrderIds: dndOrderedColumns.find(c => c._id === nextColumnId)?.cardOrderIds
+    })
+  }
   return (
     <Container disableGutters maxWidth={false} sx={{ height : '100vh', backgroundColor:'primary.main' }}>
       <AppBar/>
@@ -123,7 +147,9 @@ function Board() {
         createNewColumn={createNewColumn}
         createNewCard={createNewCard}
         moveColumns={moveColumns}
-        moveCardInTheSameColumn ={moveCardInTheSameColumn}/>
+        moveCardInTheSameColumn ={moveCardInTheSameColumn}
+        moveCardToDifferentColumn ={moveCardToDifferentColumn}
+      />
     </Container>
   )
 }
