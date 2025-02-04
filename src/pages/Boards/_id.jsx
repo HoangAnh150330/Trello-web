@@ -71,12 +71,19 @@ function Board() {
     const newBoard = { ...board }
     const columnToUpdate = newBoard.columns.find(column => column._id === createdCard.columnId)
     if (columnToUpdate) {
-      columnToUpdate.cards.push(createdCard)
-      columnToUpdate.cardOrderIds.push(createdCard._id)
+      //Nếu column rỗng : bản chất là đang chứa 1 placeholder card
+      if (columnToUpdate.cards.some(card => card.FE_PlaceholderCard)) {
+        columnToUpdate.cards =[createdCard]
+        columnToUpdate.cardOrderIds =[createdCard._id]
+      } else {
+        //Ngược lại Column đã có data thì push vào cuối mảng
+        columnToUpdate.cards.push(createdCard)
+        columnToUpdate.cardOrderIds.push(createdCard._id)
+      }
     }
+    console.log('🚀 ~ createNewCard ~ columnToUpdate:', columnToUpdate)
     setBoard(newBoard)
   }
-  //Func có nv gọi API và xử lý khi đã kéo thả Column
   /* Func có nv gọi API và xử lý khi đã kéo thả Column
   Chỉ cần gọi API để cập nhật mảng columnOrderIds của Board chứa nó (thay đổi vị trí trong mảng)
   */
@@ -130,10 +137,13 @@ function Board() {
     setBoard(newBoard)
 
     //Gọi API xử lý phía BE
+    let prevCardOrderIds = dndOrderedColumns.find(c => c._id === prevColumnId)?.cardOrderIds
+    //Xử lý vấn đề khi kéo Card cuối cùng ra khỏi Column , Column rỗng sẽ có placeHolder Card , cần xóa nó đi trước khi gửi dữ liệu lên phía BE
+    if (prevCardOrderIds[0].includes('-placeholder-card')) prevCardOrderIds =[]
     moveCardToDifferentColumnAPI({
       currentCardId,
       prevColumnId,
-      prevCardOrderIds: dndOrderedColumns.find(c => c._id === prevColumnId)?.cardOrderIds,
+      prevCardOrderIds,
       nextColumnId,
       nextCardOrderIds: dndOrderedColumns.find(c => c._id === nextColumnId)?.cardOrderIds
     })
