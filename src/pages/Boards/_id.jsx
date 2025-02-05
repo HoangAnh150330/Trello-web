@@ -5,6 +5,7 @@ import BoardContent from './BoardContent/BoardContent'
 import Box from '@mui/material/Box'
 import CircularProgress from '@mui/material/CircularProgress'
 import Typography from '@mui/material/Typography'
+import { toast } from 'react-toastify'
 // import { mockData } from '~/apis/mock-data'
 import { useEffect, useState } from 'react'
 import {
@@ -13,7 +14,8 @@ import {
   createNewCardAPI,
   updateBoardDetailsAPI,
   updateColumnDetailsAPI,
-  moveCardToDifferentColumnAPI
+  moveCardToDifferentColumnAPI,
+  deleteColumnDetailsAPI
 } from '~/apis'
 import { generatePlaceholderCard } from '~/utils/formatters'
 import { isEmpty } from 'lodash'
@@ -114,14 +116,6 @@ function Board() {
     //Gọi API Update Column
     updateColumnDetailsAPI(columnId, { cardOrderIds: dndOrderedCardIds })
   }
-  if (!board) {
-    return (
-      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent:'center', gap:2, width:'100vw', height:'100vh' }}>
-        <CircularProgress />
-        <Typography>Loading Board...</Typography>
-      </Box>
-    )
-  }
 
   // Khi di chuyển card sang Column khác:
   // B1: Cập nhật mảng cardOrderIds của Column ban đầu chứa nó (Hiểu bản chất là xóa cái _id của Card ra khỏi mảng)
@@ -148,17 +142,40 @@ function Board() {
       nextCardOrderIds: dndOrderedColumns.find(c => c._id === nextColumnId)?.cardOrderIds
     })
   }
+  //Xử lý xóa 1 column và card bên trong nó
+  const deleteColumnDetails =(columnId) => {
+    //Update cho chuẩn dữ liệu state board
+    const newBoard = { ...board }
+    newBoard.columns =newBoard.column.filter( c => c._id !== columnId)
+    newBoard.columnOrderIds = newBoard.columnOrderIds.filter( _id => _id !== columnId)
+    setBoard(newBoard)
+    //Gọi API Xử lý BE
+    deleteColumnDetailsAPI(columnId).then(res => {
+      toast.success(res?.deleteResult)
+    })
+  }
+  if (!board) {
+    return (
+      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent:'center', gap:2, width:'100vw', height:'100vh' }}>
+        <CircularProgress />
+        <Typography>Loading Board...</Typography>
+      </Box>
+    )
+  }
+
   return (
     <Container disableGutters maxWidth={false} sx={{ height : '100vh', backgroundColor:'primary.main' }}>
       <AppBar/>
       <BoardBar board={board}/>
       <BoardContent
         board={board}
+
         createNewColumn={createNewColumn}
         createNewCard={createNewCard}
         moveColumns={moveColumns}
         moveCardInTheSameColumn ={moveCardInTheSameColumn}
         moveCardToDifferentColumn ={moveCardToDifferentColumn}
+        deleteColumnDetails ={deleteColumnDetails}
       />
     </Container>
   )
