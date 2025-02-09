@@ -83,7 +83,7 @@ function Board() {
         columnToUpdate.cardOrderIds.push(createdCard._id)
       }
     }
-    console.log('🚀 ~ createNewCard ~ columnToUpdate:', columnToUpdate)
+    // console.log('🚀 ~ createNewCard ~ columnToUpdate:', columnToUpdate)
     setBoard(newBoard)
   }
   /* Func có nv gọi API và xử lý khi đã kéo thả Column
